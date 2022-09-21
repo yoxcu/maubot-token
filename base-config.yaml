@@ -1,9 +1,13 @@
-#Access Token of any Admin
+# Access Token of any Admin
 access_token: ""
-#Base Url for Synapse admin API
+# Base Url for Synapse admin API
 admin_api: "http://synapse:8008/_synapse/admin"
 # Base command without the prefix (!).
 base_command: token
+# Default allowed uses per token
+default_uses_allowed: 1
+# Default expire time per generated token 7days=604800s
+default_expiry_time: 604800
 # The list of user IDs who are allowed to talk to the bot. There is absolutely no
 # sandboxing in maubot or this plugin, keep this list small.
 whitelist:

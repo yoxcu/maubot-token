@@ -31,6 +31,8 @@ class Config(BaseProxyConfig):
         helper.copy("base_command")
         helper.copy("whitelist")
         helper.copy("admin_api")
+        helper.copy("default_uses_allowed")
+        helper.copy("default_expiry_time")
 
 def get_token(url,access_token,tokenID):
     url += '/v1/registration_tokens'
@@ -56,7 +58,7 @@ def gen_token(url,access_token,uses_allowed,expiry_time):
         return False, "ERROR: {}".format(r.status_code)
     return True, r.json()
 
-def del_token(access_token,tokenID):
+def del_token(url,access_token,tokenID):
     url += '/v1/registration_tokens/{}'.format(tokenID)
     payload = '{}'
     headers = {'content-type': 'application/json', 'Authorization': 'Bearer {}'.format(access_token)}
@@ -121,14 +123,18 @@ class TokenBot(Plugin):
         await event.reply(msg)
 
     @token.subcommand(name="generate", help="Generate a Token")
-    @command.argument("uses",parser=lambda val: int(val) if val else 0, required=False)
-    @command.argument("expiry",parser=lambda val: int(val) if val else 0, required=False)
+    @command.argument("uses",parser=lambda val: int(val) if val else None, required=False)
+    @command.argument("expiry",parser=lambda val: int(val) if val else None, required=False)
     async def generate_token(self, event: MessageEvent, uses: int, expiry: int) -> None:
         if not self.authenticate(event.sender):
             await event.reply("My mom said I'm not allowed to talk to strangers.")
             return
-        if  uses <= 0:
+        if not uses:
+            uses=self.config["default_uses_allowed"]
+        elif uses <= 0:
             uses = None
+        if not expiry:
+            expiry=self.config["default_expiry_time"]
         if expiry <= 0:
             expiry = None
         else:

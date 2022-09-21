@@ -35,6 +35,7 @@ extra_files:
 - base-config.yaml
 - LICENSE
 
+config: true
 # List of dependencies
 #dependencies:
 #- foo
