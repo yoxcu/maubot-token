@@ -1,2 +1,3 @@
-# maubot-token
-A maubot to manage your synapse user registration tokens.
+# token
+A [maubot](https://github.com/maubot/maubot) to manage your synapse user registration tokens.
+

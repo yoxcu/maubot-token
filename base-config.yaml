@@ -1,0 +1,10 @@
+#Access Token of any Admin
+access_token: ""
+#Base Url for Synapse admin API
+admin_api: "http://synapse:8008/_synapse/admin"
+# Base command without the prefix (!).
+base_command: token
+# The list of user IDs who are allowed to talk to the bot. There is absolutely no
+# sandboxing in maubot or this plugin, keep this list small.
+whitelist:
+- '@user:example.com'
