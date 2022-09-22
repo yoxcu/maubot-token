@@ -25,6 +25,8 @@ import datetime
 import requests
 from typing import Type
 
+error_msg_no_auth="My mom said I'm not allowed to talk to strangers."
+
 class Config(BaseProxyConfig):
     def do_update(self, helper: ConfigUpdateHelper) -> None:
         helper.copy("access_token")
@@ -34,8 +36,8 @@ class Config(BaseProxyConfig):
         helper.copy("default_uses_allowed")
         helper.copy("default_expiry_time")
 
-def get_token(url,access_token,tokenID):
-    url += '/v1/registration_tokens'
+def get_token(base_url,access_token,tokenID):
+    url = base_url + '/v1/registration_tokens'
     if tokenID:
         url+="/{}".format(tokenID)
     payload = '{}'
@@ -45,8 +47,8 @@ def get_token(url,access_token,tokenID):
         return False, "ERROR: {}".format(r.status_code)
     return True, r.json()
 
-def gen_token(url,access_token,uses_allowed,expiry_time):
-    url += '/v1/registration_tokens/new'
+def gen_token(base_url,access_token,uses_allowed,expiry_time):
+    url = base_url + '/v1/registration_tokens/new'
     payload = {}
     if uses_allowed:
         payload["uses_allowed"]=uses_allowed
@@ -58,8 +60,8 @@ def gen_token(url,access_token,uses_allowed,expiry_time):
         return False, "ERROR: {}".format(r.status_code)
     return True, r.json()
 
-def del_token(url,access_token,tokenID):
-    url += '/v1/registration_tokens/{}'.format(tokenID)
+def del_token(base_url,access_token,tokenID):
+    url = base_url + '/v1/registration_tokens/{}'.format(tokenID)
     payload = '{}'
     headers = {'content-type': 'application/json', 'Authorization': 'Bearer {}'.format(access_token)}
     r = requests.delete(url, data=payload, headers=headers)
@@ -82,10 +84,10 @@ def parse_tokens(json):
             valid = valid and token["completed"]<token["uses_allowed"]
         if token["expiry_time"]:
             valid = valid and token["expiry_time"]>int(time.time())*1000
-        if not valid:
-            invalid_tokens+="- {}\n".format(token["token"])
-        else:
+        if valid:
             valid_tokens+="- {}\n".format(token["token"])
+        else:
+            invalid_tokens+="- {}\n".format(token["token"])
     return invalid_tokens + "\n" + valid_tokens
 
 class TokenBot(Plugin):
@@ -109,7 +111,7 @@ class TokenBot(Plugin):
     @command.argument("token", required=False, pass_raw=True)
     async def list_tokens(self, event: MessageEvent, token: str) -> None:
         if not self.authenticate(event.sender):
-            await event.reply("My mom said I'm not allowed to talk to strangers.")
+            await event.reply(error_msg_no_auth)
             return
         ret, available_token=get_token(self.config["admin_api"],self.config["access_token"],token)
         msg=""
@@ -127,7 +129,7 @@ class TokenBot(Plugin):
     @command.argument("expiry",parser=lambda val: int(val) if val else None, required=False)
     async def generate_token(self, event: MessageEvent, uses: int, expiry: int) -> None:
         if not self.authenticate(event.sender):
-            await event.reply("My mom said I'm not allowed to talk to strangers.")
+            await event.reply(error_msg_no_auth)
             return
         if not uses:
             uses=self.config["default_uses_allowed"]
@@ -151,7 +153,7 @@ class TokenBot(Plugin):
     @command.argument("token", required=True, pass_raw=True)
     async def delete_token(self, event: MessageEvent, token: str) -> None:
         if not self.authenticate(event.sender):
-            await event.reply("My mom said I'm not allowed to talk to strangers.")
+            await event.reply(error_msg_no_auth)
             return
         ret, available_token=del_token(self.config["admin_api"],self.config["access_token"],token)
         msg="Token deleted!"
