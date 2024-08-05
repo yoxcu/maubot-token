@@ -8,7 +8,7 @@ maubot: 0.1.0
 id: de.yoxcu.token
 
 # A PEP 440 compliant version string.
-version: 1.1.0
+version: 1.1.1
 
 # The SPDX license identifier for the plugin. https://spdx.org/licenses/
 # Optional, assumes all rights reserved if omitted.

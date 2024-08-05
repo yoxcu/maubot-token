@@ -167,8 +167,7 @@ class TokenBot(Plugin):
             uses = self.config["default_uses_allowed"]
         if not expiry:
             expiry = self.config["default_expiry_time"]
-        else:
-            expiry = expiry * 1000 + int(time.time()) * 1000
+        expiry = expiry * 1000 + int(time.time()) * 1000
         ret, available_token = await self._gen_token(
             self.config["admin_api"], self.config["access_token"], uses,
             expiry)
